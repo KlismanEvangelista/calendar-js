@@ -1,0 +1,82 @@
+<meta charset="utf-8">
+<link rel="stylesheet" href="styles.css">
+
+<section>
+    <div></div>
+    <button id="down">👇🏻</button>
+    <button id="up">👆🏻</button>
+</section>
+
+<script>
+    const createCalendar = ({ locale, year }) => {
+
+        const weekDays = [...Array(7).keys()]
+        const intlWeekDays = new Intl.DateTimeFormat(locale, {
+            weekday: 'short'
+        })
+
+        document.getElementById('up').addEventListener('click', () => {
+            const el = document.querySelector('div')
+            el.scrollTo({top: el.scrollTop - window.innerHeight, behavior: 'smooth'})
+        })
+
+        document.getElementById('down').addEventListener('click', () => {
+            const el = document.querySelector('div')
+            el.scrollTo({top: el.scrollTop + window.innerHeight, behavior: 'smooth'})
+        })
+
+        const weekDaysNames = weekDays.map((weekDayIndex) => {
+            const date = new Date(2025, 8, weekDayIndex +1)
+            const weekDayName = intlWeekDays.format(date)
+            return weekDayName
+        })
+
+        const renderedWeekDays = weekDaysNames.map((weekDayName) =>{
+            return `<li class="day-name">${weekDayName}</li>`
+        }).join(' ')
+
+        const months = [...Array(12).keys()]
+        const intl = new Intl.DateTimeFormat(locale, {
+            month: 'long'
+        })
+
+        const calendar = months.map((monthKey) => {
+            const monthName = intl.format(new Date(year, monthKey))
+
+            const nextMonthIndex = monthKey + 1
+            const daysOfMonth = new Date(year,nextMonthIndex, 0).getDate()
+
+            const startsOn = new Date(year, monthKey, 1).getDay()
+
+            return {
+                monthName,
+                daysOfMonth,
+                startsOn
+            }
+        })
+        
+        const html = calendar.map((item) => {
+        const monthName = item.monthName
+        const startsOn = item.startsOn
+
+        const firstDayAttributes = `class='first-day' style='--first-day-start: ${startsOn}'`
+
+        const days = [...Array(item.daysOfMonth).keys()]
+        const renderedDays = days.map((day, index) => 
+            `<li ${index === 0 ? firstDayAttributes : '' }>${day+1}</li>`).join(' ')
+
+            return `<div class='month'>
+                <h1>${monthName} ${year}</h1>
+                <ol>
+                    ${renderedWeekDays}
+                    ${renderedDays}
+                </ol> 
+                </div>`;
+        }).join(' ')
+
+        document.querySelector('div').innerHTML = html
+    }
+
+    createCalendar({ locale: 'en', year: 2075 })
+    
+</script>
